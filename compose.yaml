@@ -1,0 +1,57 @@
+version: '3.7'
+services:
+
+  rclone-mount:
+    image: rclone/rclone:1.59.1
+    container_name: rclone-mount
+    user: 1000:1000
+    ports:
+      - 5576:5576
+    volumes:
+      - ~/.config/rclone:/config/rclone
+      - ~/Gdrive/multimedia:/data:rshared
+      - /etc/passwd:/etc/passwd:ro
+      - /etc/group:/etc/group:ro
+    cap_add:
+      - SYS_ADMIN
+
+      - SYS_ADMIN
+    devices:
+      - /dev/fuse
+    security_opt:
+      - apparmor:unconfined
+    devices:
+      - /dev/fuse
+    command: "mount aaa: /data/ --allow-non-empty --allow-other --buffer-size >
+    restart: unless-stopped
+
+  wireguard:
+    image: linuxserver/wireguard:1.0.20210914
+    container_name: wireguard
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+       environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe
+      - SERVERURL=auto #optional
+      - SERVERPORT=51820 #optional
+      - PEERS=2 #optional
+      - PEERDNS=auto #optional
+      - INTERNAL_SUBNET=10.13.13.0 #optional
+    volumes:
+      - /root/wireguard:/config
+      - /lib/modules:/lib/modules
+      - /usr/src:/usr/src
+    ports:
+      - 51820:51820/udp
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+    dns:
+      - 172.20.0.7
+    restart: unless-stopped
+    networks:
+      containers:
+        ipv4_address: 172.20.0.6
+
